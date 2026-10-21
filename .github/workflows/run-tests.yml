@@ -34,17 +34,17 @@ jobs:
         stability: [prefer-lowest, prefer-stable]
         include:
           - laravel: 10.*
-            testbench: '^8.39'
-            phpunit: '^10.5'
+            testbench: '~8.39'
+            phpunit: '~10.5'
           - laravel: 11.*
-            testbench: '^9.18'
-            phpunit: '^11.5'
+            testbench: '~9.18'
+            phpunit: '~11.5'
           - laravel: 12.*
-            testbench: '^10.12'
-            phpunit: '^11.5'
+            testbench: '~10.12'
+            phpunit: '~11.5'
           - laravel: 13.*
-            testbench: '^11.3'
-            phpunit: '^11.5'
+            testbench: '~11.3'
+            phpunit: '~11.5'
         exclude:
           - laravel: 10.*
             php: 8.4
