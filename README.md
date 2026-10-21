@@ -1,25 +1,25 @@
 # Laravel Navigation
 
-Core navigasi Laravel dengan fluent definitions, authorization, dan hasil tree immutable. Package `ahmdrv/laravel-nav` menggunakan namespace `Ahmdrv\Navigation`. Mendukung PHP 8.3+ dan Laravel 10, 11, 12, serta 13. Constraint Illuminate adalah `^10.0 || ^11.0 || ^12.0 || ^13.0`; versi major berikutnya perlu diuji sebelum ditambahkan.
+A Laravel navigation core with fluent definitions, authorization, and immutable navigation trees. The Composer package is `ahmdrv/laravel-nav`, with the namespace `Ahmdrv\Navigation`. It supports PHP 8.3+ and Laravel 10, 11, 12, and 13. Illuminate constraints are `^10.0 || ^11.0 || ^12.0 || ^13.0`; future major versions must be tested before they are added.
 
-Package hanya menghasilkan data. Rendering HTML, Blade, API response, orientasi menu, layout, escaping, dan sanitization ditangani aplikasi. Tidak ada views/components, assets, view composers, database menu, maupun dependency wajib Livewire, Filament, atau Spatie Permission.
+The package produces data for applications to consume. Applications handle HTML rendering, Blade, API responses, menu orientation, layouts, escaping, and sanitization. The package includes no views/components, frontend assets, view composers, database menu storage, or mandatory dependencies on Livewire, Filament, or Spatie Permission.
 
-## Instalasi
+## Installation
 
-Setelah package tersedia di repository Composer Anda:
+Once the package is available in your Composer repository:
 
 ```bash
 composer require ahmdrv/laravel-nav
 php artisan vendor:publish --tag="nav-config"
 ```
 
-Laravel menemukan `NavigationServiceProvider` dan alias `Navigation` melalui package discovery. Facade lengkapnya:
+Laravel discovers `NavigationServiceProvider` and the `Navigation` alias through package discovery. The fully qualified facade is:
 
 ```php
 use Ahmdrv\Navigation\Facades\Navigation;
 ```
 
-Konfigurasi `config/navigation.php`:
+Configuration in `config/navigation.php`:
 
 ```php
 return [
@@ -27,11 +27,11 @@ return [
 ];
 ```
 
-File yang tidak ada diabaikan. Set `registry` ke `null` untuk menonaktifkan file registry, atau ganti dengan absolute path. Konfigurasi dibaca ketika manager pertama kali di-resolve.
+Missing files are ignored. Set `registry` to `null` to disable file loading, or use a custom absolute path. Configuration is read when the manager is first resolved.
 
-## Registrasi dan konsumsi
+## Registration and Consumption
 
-Di `boot()` service provider aplikasi:
+Register definitions in an application service provider's `boot()` method:
 
 ```php
 use Ahmdrv\Navigation\Facades\Navigation;
@@ -50,9 +50,9 @@ Navigation::register([
 ]);
 ```
 
-`item()` dan `group()` hanya membuat definitions. Hanya `register()` yang menambah root; children tidak otomatis menjadi root. `register()` menerima list definitions dan mengembalikan `void`. Setiap panggilan menambahkan roots dalam urutan panggilan.
+`item()` and `group()` only create definitions. Only `register()` adds roots; children are never automatically registered as roots. `register()` accepts a list of definitions and returns `void`. Each call appends roots in registration order.
 
-Alternatif file `routes/navigation.php` **mengembalikan list**:
+Alternatively, a `routes/navigation.php` file **returns a list**:
 
 ```php
 <?php
@@ -67,58 +67,58 @@ return [
 ];
 ```
 
-Jangan memanggil `register()` atau `build()` di file itu. Gunakan salah satu tempat registrasi untuk definitions yang sama agar tidak diduplikasi. Registrasi programatis dan file dapat digabungkan untuk definitions berbeda.
+Do not call `register()` or `build()` inside this file. Register each definition in one place to avoid duplicates. Programmatic and file registration can be combined for different definitions.
 
-Konsumsi di controller aplikasi:
+Consume the tree in an application controller:
 
 ```php
 $items = Navigation::build(); // list<ResolvedNavigationItem>
 return view('dashboard', ['navigation' => $items]);
 ```
 
-Atau bentuk array untuk API Resource/response milik aplikasi:
+Or convert it to arrays for an application API Resource or response:
 
 ```php
 $data = array_map(static fn ($item) => $item->toArray(), Navigation::build());
 return response()->json(['navigation' => $data]);
 ```
 
-Contoh ini bukan renderer package. Lihat [contoh consumer](examples/consume.php).
+Rendering remains the application's responsibility. See the [consumer example](examples/consume.php).
 
-## Definisi fluent
+## Fluent Definitions
 
-Semua setter mengembalikan definition yang sama. Definitions mutable saat disusun; builder tidak mengubah definitions tersebut. Label selalu teks, termasuk string yang kebetulan berisi tag HTML. Tidak ada dukungan label trusted HTML.
+All setters return the same definition instance. Definitions are mutable while being assembled; the builder does not modify them. Labels are always text, including strings containing HTML tags. Trusted HTML labels are not supported.
 
-| Metode item | Perilaku |
+| Item method | Behavior |
 | --- | --- |
-| `label(string)` | Mengganti teks label |
-| `icon(string\|Icon)` | Metadata icon; string menjadi identifier/class |
-| `route(string, array = [])` | Named route beserta parameters dan query Laravel |
-| `url(?string)` | URL literal; `null` diperbolehkan; `'#'` dipertahankan |
-| `badge(label, color = 'primary')` | Label scalar/null/Closure dan warna string/Closure |
-| `openUrlInNewTab(bool\|Closure = true)` | Target `_blank` bila benar, selain itu `null` |
-| `sort(int)` | Urutan ascending, default `0` |
-| `items(array\|Closure)` | List children atau callback yang menghasilkan list |
-| `activeRoute(string\|array)` | Satu/beberapa pola nama route, termasuk `*` |
-| `activeWhen(Closure)` | Kondisi aktif tambahan |
-| `visible(bool\|Closure = true)` | Semua visible rules harus benar |
-| `hidden(bool\|Closure = true)` | Tidak satu pun hidden rules boleh benar |
-| `roles(string\|array)` | Minimal satu role per panggilan cocok |
-| `permissions(string\|array)` | Minimal satu permission per panggilan cocok |
-| `can(string, mixed = [])` | Laravel Gate/policy, termasuk class/model arguments |
-| `authorize(Closure)` | Kondisi authorization tambahan |
+| `label(string)` | Replace the label text |
+| `icon(string\|Icon)` | Set icon metadata; a string becomes an identifier/class |
+| `route(string, array = [])` | Set a named route with Laravel route and query parameters |
+| `url(?string)` | Set a literal URL; `null` is allowed and `'#'` is preserved |
+| `badge(label, color = 'primary')` | Set a scalar/null/Closure label and string/Closure color |
+| `openUrlInNewTab(bool\|Closure = true)` | Use target `_blank` when true, otherwise `null` |
+| `sort(int)` | Set ascending sort order, default `0` |
+| `items(array\|Closure)` | Set a children list or a callback returning one |
+| `activeRoute(string\|array)` | Match one or more route-name patterns, including `*` |
+| `activeWhen(Closure)` | Add an active-state condition |
+| `visible(bool\|Closure = true)` | Require every visibility rule to be true |
+| `hidden(bool\|Closure = true)` | Require every hidden rule to be false |
+| `roles(string\|array)` | Require at least one matching role per call |
+| `permissions(string\|array)` | Require at least one matching permission per call |
+| `can(string, mixed = [])` | Check Laravel Gate/policy authorization, including class/model arguments |
+| `authorize(Closure)` | Add an authorization condition |
 
-Group mendukung `label`, `sort`, `items`, `visible`, `hidden`, `roles`, `permissions`, `can`, dan `authorize`. Groups adalah struktur pengelompokan tanpa URL, badge, icon, atau active condition sendiri.
+Groups support `label`, `sort`, `items`, `visible`, `hidden`, `roles`, `permissions`, `can`, and `authorize`. Groups organize children without their own URL, badge, icon, or active condition.
 
-Pemanggilan setter nilai (`route`, `url`, `items`, `badge`, `activeRoute`, `activeWhen`, dll.) mengganti nilai sebelumnya. `route()` dan `url()` saling menggantikan; tujuan terakhir menang. Rules visibility/authorization ditambahkan secara kumulatif, termasuk pemanggilan berulang metode yang sama. `roles([])` dan `permissions([])` selalu menolak.
+Value setters (`route`, `url`, `items`, `badge`, `activeRoute`, `activeWhen`, etc.) replace previous values. `route()` and `url()` replace each other; the last destination wins. Visibility and authorization rules accumulate, including repeated calls to the same method. `roles([])` and `permissions([])` always deny access.
 
-## Authorization dan guest
+## Authorization and Guests
 
-Filtering berjalan sebelum children, URL, active state, target, atau badge dievaluasi. Semua kategori aturan harus lolos: visible, hidden, roles, permissions, Gate, dan authorize. Evaluasi dapat berhenti segera setelah satu aturan menolak. Parent yang ditolak tidak mengevaluasi atau mengekspos children. Group kosong setelah filtering dihapus; item tanpa children tetap dipertahankan.
+Filtering happens before evaluating children, URLs, active state, targets, or badges. Every rule category must pass: visible, hidden, roles, permissions, Gate, and authorize. Evaluation may stop as soon as a rule denies access. Denied parents neither evaluate nor expose children. Empty groups are removed after filtering; items without children remain.
 
-Guest mendapatkan `null` sebagai user. Guest dapat melihat item publik, ditolak oleh roles/permissions, dan mengikuti perilaku Laravel Gate untuk callback/policy yang menerima nullable user. `authorize()` dan visibility callbacks menentukan sendiri apakah guest boleh lewat.
+Guests receive `null` as the user. They can see public items, are denied by role/permission rules, and follow Laravel Gate's behavior for callbacks/policies accepting a nullable user. Visibility and `authorize()` callbacks determine their own guest behavior.
 
-Default `DenyRolePermissionAdapter` menolak semua aturan role/permission, juga untuk authenticated user. Tidak ada deteksi otomatis metode model maupun fallback yang mengizinkan akses. Bind adapter di `register()` service provider aplikasi:
+The default `DenyRolePermissionAdapter` denies every role/permission rule, including for authenticated users. There is no automatic model-method detection or fallback that grants access. Bind an adapter in your application service provider's `register()` method:
 
 ```php
 use Ahmdrv\Navigation\Contracts\RolePermissionAdapter;
@@ -126,14 +126,14 @@ use Ahmdrv\Navigation\Contracts\RolePermissionAdapter;
 $this->app->bind(RolePermissionAdapter::class, AppRolePermissionAdapter::class);
 ```
 
-Adapter harus mengimplementasikan:
+Adapters must implement:
 
 ```php
 public function hasAnyRole(Authenticatable $user, array $roles): bool;
 public function hasAnyPermission(Authenticatable $user, array $permissions): bool;
 ```
 
-Contoh adapter aplikasi yang sudah memakai Spatie Permission:
+An example adapter for an application already using Spatie Permission:
 
 ```php
 use Ahmdrv\Navigation\Contracts\RolePermissionAdapter;
@@ -153,18 +153,18 @@ final class AppRolePermissionAdapter implements RolePermissionAdapter
 }
 ```
 
-Package tidak memasang Spatie Permission. Adapter dapat memakai implementasi role/permission lain. Adapter harus stateless atau memiliki lifecycle request yang tepat. Implementasi lengkap aturan dapat diganti melalui contract `NavigationAuthorization`. Visibility navigasi tidak menggantikan authorization pada endpoint aplikasi.
+The package does not install Spatie Permission. Adapters can use any role/permission implementation and must be stateless or use an appropriate request lifecycle. Replace the `NavigationAuthorization` contract to customize the complete authorization strategy. Navigation visibility does not replace authorization on application endpoints.
 
-## Callback dan badges
+## Callbacks and Badges
 
-Semua callback memakai `CallbackEvaluator`, berdasarkan posisi parameter, tanpa dependency injection berdasarkan nama/type parameter.
+All callbacks use `CallbackEvaluator`. Arguments are positional; there is no dependency injection based on parameter names or types.
 
-| Callback | Argumen yang tersedia, berurutan |
+| Callback | Available arguments, in order |
 | --- | --- |
 | `items`, `visible`, `hidden`, `authorize`, `activeWhen`, `openUrlInNewTab`, badge label | `?Authenticatable $user`, `NavigationNode $item`, `NavigationContext $context` |
 | badge color | `string\|int\|float $label`, `?Authenticatable $user`, `NavigationItem $item`, `NavigationContext $context` |
 
-Closure boleh menerima nol argumen atau prefix signature tersebut. Argumen opsional yang posisinya tersedia tetap diisi; parameter opsional setelah seluruh argumen tersedia memakai default PHP. Variadic menerima seluruh argumen tersisa. Parameter required melebihi jumlah yang didukung menghasilkan `InvalidArgumentException`. Callback exception diteruskan; callback harus read-only, tidak melakukan registrasi/mutasi definitions.
+Closures may accept zero arguments or any prefix of the supported signature. Optional parameters receive available positional arguments; optional parameters beyond the available arguments use their PHP defaults. Variadic parameters receive all remaining arguments. Requiring more arguments than the signature supports throws `InvalidArgumentException`. Callback exceptions propagate. Callbacks must be read-only and must not register or mutate definitions.
 
 ```php
 Navigation::item('Inbox')->badge(
@@ -173,21 +173,21 @@ Navigation::item('Inbox')->badge(
 );
 ```
 
-Badge disembunyikan untuk `null`, `false`, `''`, `0`, `0.0`, dan `'0'`. Label yang tampil harus string, integer, atau float; tipe lain (termasuk `true`) menghasilkan `InvalidArgumentException`. Warna hasil callback harus string. Warna hanya metadata: `danger`, `#ff5722`, dan `var(--brand-color)` dipertahankan apa adanya.
+Badges are hidden for `null`, `false`, `''`, `0`, `0.0`, and `'0'`. Displayed labels must be strings, integers, or floats; other types, including `true`, throw `InvalidArgumentException`. Resolved colors must be strings. Colors are metadata: `danger`, `#ff5722`, and `var(--brand-color)` are preserved unchanged.
 
-Callback label dipanggil sekali per item yang lolos dalam satu build; warna hanya dievaluasi sekali jika label tampil. Callback children/active/target masing-masing dievaluasi sekali saat diperlukan. Aturan dengan Closure yang sama pada beberapa kategori tetap merupakan aturan terpisah. Definition yang sengaja digunakan pada beberapa posisi dievaluasi untuk setiap kemunculannya. Build berikutnya mengevaluasi kembali; tidak ada automatic database caching atau cache hasil per user.
+The label callback runs once per visible item occurrence in a build; the color callback runs once only when the label is displayed. Children, active-state, and target callbacks each run once when needed. Reusing a Closure across rule categories still creates separate rules. A definition deliberately placed at multiple positions is evaluated for each occurrence. Subsequent builds evaluate callbacks again; there is no automatic database caching or per-user result cache.
 
-## URL, active/open, dan sorting
+## URLs, Active/Open State, and Sorting
 
-Named routes di-resolve saat build, sesudah routes aplikasi tersedia. Route parameters memakai URL generator Laravel, termasuk implicit route key dan query parameters tambahan. Named route yang tidak ditemukan meneruskan `Symfony\Component\Routing\Exception\RouteNotFoundException`; parameter required yang hilang mengikuti exception URL generator Laravel. Item tersembunyi tidak me-resolve route.
+Named routes are resolved during the build, after application routes are available. Parameters use Laravel's URL generator, including model route keys and additional query parameters. A missing named route propagates `Symfony\Component\Routing\Exception\RouteNotFoundException`; missing required parameters follow Laravel's URL-generation exceptions. Hidden items do not resolve routes.
 
-Tanpa `activeRoute()`, named destination menjadi pola exact nama route. URL literal tidak otomatis aktif. Pola eksplisit memakai Laravel `Str::is`, mendukung beberapa pola dan wildcard. `activeWhen()` digabung dengan hasil pola menggunakan OR dan selalu dievaluasi sekali bila disediakan. Tanpa current named route, hanya `activeWhen()` yang dapat mengaktifkan item.
+Without `activeRoute()`, a named destination defaults to an exact route-name match. Literal URLs do not become active automatically. Explicit patterns use Laravel's `Str::is`, supporting multiple patterns and wildcards. `activeWhen()` is combined with pattern matching using OR and always runs once when supplied. Without a current named route, only `activeWhen()` can activate an item.
 
-`isActive` hanya status item itu sendiri. Descendant aktif **tidak** membuat parent `isActive`. `isOpen` benar jika item itu aktif atau ada descendant aktif/terbuka. Group selalu `isActive = false`, tetapi dapat `isOpen = true` melalui children.
+`isActive` describes the item itself. Active descendants do **not** make a parent `isActive`. `isOpen` is true when the item is active or any descendant is active/open. Groups always have `isActive = false`, but can have `isOpen = true` through children.
 
-Setiap tingkat diurutkan berdasarkan `sort` ascending. Default `0`; nilai sama mempertahankan urutan registrasi/list. Urutan definitions sumber tidak diubah. Siklus atau kedalaman melebihi 128 tingkat menghasilkan `LogicException`.
+Each level is sorted by `sort` ascending. The default is `0`; equal values preserve registration/list order. Source definition order is unchanged. Cycles or nesting beyond 128 levels throw `LogicException`.
 
-## Icon metadata
+## Icon Metadata
 
 ```php
 use Ahmdrv\Navigation\Data\Icon;
@@ -197,44 +197,44 @@ Navigation::item('Home')->icon(Icon::identifier('home'));
 Navigation::item('Logo')->icon(Icon::trustedSvg('<svg>...</svg>'));
 ```
 
-Identifier maupun CSS class memiliki representasi `['type' => 'identifier', 'value' => '...']`. SVG opt-in memakai `['type' => 'trusted_svg', 'value' => '...']`. Core tidak membungkus icon dalam tag HTML, merender Blade, atau memvalidasi SVG. Renderer bertanggung jawab untuk escaping label dan identifier serta sanitization/trust policy markup. Jangan meneruskan input pengguna sebagai trusted SVG tanpa sanitization.
+Identifiers and CSS classes use `['type' => 'identifier', 'value' => '...']`. Opt-in SVG uses `['type' => 'trusted_svg', 'value' => '...']`. The core does not wrap icons in HTML, render Blade, or validate SVG. Renderers handle label/identifier escaping and markup sanitization/trust policies. Never pass unsanitized user input as trusted SVG.
 
-## Kontrak output
+## Output Contract
 
-`build(?NavigationContext $context = null): array` mengembalikan `list<ResolvedNavigationItem>`. Tanpa argumen, context terbaru diambil dari request Laravel. `NavigationContext` menyediakan `user(): ?Authenticatable`, `routeName(): ?string`, dan `request(): Request`; implementasi custom dapat diberikan pada `build()` atau melalui binding container.
+`build(?NavigationContext $context = null): array` returns `list<ResolvedNavigationItem>`. Without an argument, the latest context comes from Laravel's request. `NavigationContext` provides `user(): ?Authenticatable`, `routeName(): ?string`, and `request(): Request`; supply a custom implementation to `build()` or bind it in the container.
 
-DTO dan metadata icon/badge adalah `final readonly`. Children adalah array readonly berisi DTO readonly secara rekursif; array sumber disalin tanpa reference alias. Root array milik consumer boleh disusun ulang tanpa memengaruhi registry. Tidak ada Closure, query builder, model user, atau authorization yang belum dievaluasi dalam hasil.
+DTOs and icon/badge metadata are `final readonly`. Children are readonly arrays containing recursively readonly DTOs; source arrays are copied without reference aliases. Consumers may reorder the root array without affecting the registry. Results contain no Closures, query builders, user models, or pending authorization evaluations.
 
-`toArray()` melakukan konversi rekursif dengan key yang sama pada item maupun group:
+`toArray()` converts recursively using the same keys for items and groups:
 
 ```php
 [
     'kind' => 'item', // 'item' | 'group'
-    'label' => 'Inbox', // string teks
-    'icon' => ['type' => 'identifier', 'value' => 'mail'], // atau null / trusted_svg
+    'label' => 'Inbox', // plain text string
+    'icon' => ['type' => 'identifier', 'value' => 'mail'], // or null / trusted_svg
     'url' => 'https://example.com/inbox', // string|null
     'target' => '_blank', // '_blank'|null
-    'badge' => ['label' => 3, 'color' => 'danger'], // atau null
+    'badge' => ['label' => 3, 'color' => 'danger'], // or null
     'sort' => 0, // int
     'isActive' => true, // bool
     'isOpen' => true, // bool
-    'children' => [], // list dengan schema yang sama
+    'children' => [], // list using the same schema
 ]
 ```
 
-Group memiliki icon/url/target/badge `null`. Tidak ada HTML buatan core, CSS state classes, atau key layout.
+Groups have `null` icon/url/target/badge values. The output contains no core-generated HTML, CSS state classes, or layout keys.
 
-## Lifecycle dan worker
+## Lifecycle and Workers
 
-`NavigationManager` merupakan singleton registry definitions untuk satu aplikasi/worker. Registrasi programatis dilakukan sekali di provider saat bootstrap, bukan di middleware/controller setiap request. File registry dimuat lazy satu kali saat build pertama, ditambahkan setelah roots programatis yang sudah ada. File harus menghasilkan list; hasil invalid menimbulkan `InvalidArgumentException` dan loading dapat dicoba ulang setelah diperbaiki. File hilang dianggap selesai dimuat; restart worker untuk mengambil perubahan registry/config.
+`NavigationManager` is a singleton definition registry for one application/worker. Register programmatic definitions once in a provider during bootstrap, rather than in middleware/controllers on every request. The registry file loads lazily once on the first build, appending after existing programmatic roots. It must return a list; invalid results throw `InvalidArgumentException`, and loading can be retried after correction. Missing files are considered loaded; restart workers to pick up registry/configuration changes.
 
-Builder, context, dan default authorization di-resolve ulang setiap build dari container aktif. Tidak ada user, hasil Gate, active state, atau badge yang disimpan dalam registry. Build berulang menghasilkan DTO baru dan tidak menambah roots. Tidak ada global result cache atau serialization Closure.
+The builder, context, and default authorization implementation are resolved from the active container on every build. The registry stores no users, Gate results, active states, or evaluated badges. Repeated builds produce new DTOs without adding roots. There is no global result cache or Closure serialization.
 
-Definitions yang bertahan dalam worker harus berisi nilai statis atau callback yang membaca argumen context saat evaluasi. Jangan menangkap `auth()->user()`, request, model user, atau hasil query saat bootstrap; jangan mengikat custom context/adapter yang menangkap request sebagai singleton. Jika definitions perlu berbeda per user, gunakan `visible`, `authorize`, atau `items(Closure)`; jangan memanggil `register()` per request. Package tidak dapat menghapus state yang sengaja ditangkap callback aplikasi.
+Definitions retained by workers must contain static values or callbacks that read context arguments during evaluation. Do not capture `auth()->user()`, requests, user models, or query results during bootstrap. Do not bind custom contexts/adapters that capture requests as singletons. For definitions that vary by user, use `visible`, `authorize`, or `items(Closure)` instead of calling `register()` per request. The package cannot remove state deliberately captured by application callbacks.
 
-Pengujian mengganti request dan user dalam container/proses yang sama. Server Octane sesungguhnya belum dijalankan dalam verifikasi lokal ini.
+Tests replace requests and users within the same container/process. An actual Octane server has not been exercised in local verification.
 
-## Pengembangan dan verifikasi
+## Development and Verification
 
 ```bash
 composer install
@@ -244,20 +244,20 @@ composer test
 composer validate --strict
 ```
 
-Pint memakai preset PSR-12 dengan strict types. PHPStan/Larastan level 6 tanpa baseline. Test memakai PHPUnit 10/11 dan Orchestra Testbench 8–11 sesuai versi Laravel, tanpa database bisnis. CI menjalankan test matrix, formatting, static analysis, Dependabot, dan pembaruan changelog.
+Pint uses the PSR-12 preset with strict types. PHPStan/Larastan runs at level 6 without a baseline. Tests use PHPUnit 10/11 and Orchestra Testbench 8–11 according to the Laravel version, without a business database. CI covers the test matrix, formatting, static analysis, Dependabot, and changelog updates.
 
-Matrix kompatibilitas:
+Compatibility matrix:
 
-| Laravel | PHP yang diuji di CI | Testbench | PHPUnit |
+| Laravel | PHP versions tested in CI | Testbench | PHPUnit |
 | --- | --- | --- | --- |
 | 10 | 8.3 | 8 | 10 |
 | 11 | 8.3, 8.4 | 9 | 11 |
 | 12 | 8.3, 8.4, 8.5 | 10 | 11 |
 | 13 | 8.3, 8.4, 8.5 | 11 | 11 |
 
-Setiap kombinasi dijalankan pada Linux dan Windows, dengan dependency `prefer-lowest` dan `prefer-stable`. PHP 8.1/8.2 tidak didukung package ini.
+Each combination runs on Linux and Windows using both `prefer-lowest` and `prefer-stable` dependencies. PHP 8.1/8.2 is not supported by this package.
 
-Verifikasi lokal pada PHP 8.3.21 memakai kombinasi berikut; setiap versi menjalankan 51 tests (137 assertions) dan static analysis level 6:
+Local verification on PHP 8.3.21 used the following combinations. Each version passed 51 tests (137 assertions) and static analysis at level 6:
 
 | Laravel | Testbench | PHPUnit |
 | --- | --- | --- |
@@ -266,9 +266,8 @@ Verifikasi lokal pada PHP 8.3.21 memakai kombinasi berikut; setiap versi menjala
 | 12.70.0 | 10.12.0 | 11.5.57 |
 | 13.38.0 | 11.3.0 | 11.5.57 |
 
-Laravel 10 dan 11 sudah melewati masa dukungan keamanan upstream. Kompatibilitas package tidak memperpanjang dukungan keamanan framework. Job CI Laravel 10/11 mengizinkan dependency dengan advisory untuk menjalankan test kompatibilitas dan tetap menampilkan hasil audit; pengecualian ini hanya berlaku di lingkungan CI, tidak disertakan dalam konfigurasi Composer package. Job Laravel 12/13 menggunakan kebijakan keamanan default Composer. Lihat [kebijakan dukungan Laravel](https://laravel.com/docs/13.x/releases#support-policy).
+Laravel 10 and 11 are past upstream security maintenance. Package compatibility does not extend framework security support. Their CI jobs allow dependencies with advisories to run compatibility tests and retain audit reports. This exception applies only inside CI and is absent from the distributed Composer configuration. Laravel 12/13 jobs use Composer's default security policy. See [Laravel's support policy](https://laravel.com/docs/13.x/releases#support-policy).
 
+## License
 
-## Lisensi
-
-MIT. Lihat [LICENSE.md](LICENSE.md).
+MIT. See [LICENSE.md](LICENSE.md).

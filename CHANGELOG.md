@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - 2026-10-21
+
+- Translate the README into English while preserving API examples and behavior documentation.
+- Add repository guidelines and establish English as the default documentation language.
+- Adopt Conventional Commits for contributors and automated commits.
+
 ## 0.1.0 - 2026-10-21
 
 - Add fluent items/groups, explicit root registration, and optional registry file.
