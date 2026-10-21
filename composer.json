@@ -69,5 +69,23 @@
     "support": {
         "issues": "https://github.com/ahmadrivaldi-arv/laravel-nav/issues",
         "source": "https://github.com/ahmadrivaldi-arv/laravel-nav"
+    },
+    "archive": {
+        "exclude": [
+            "/vendor",
+            "/build",
+            "/tests",
+            "/.github",
+            "/.phpunit.cache",
+            "/.phpunit.result.cache",
+            "/composer.lock",
+            "/phpunit.xml.dist",
+            "/phpstan.neon.dist",
+            "/pint.json",
+            "/.editorconfig",
+            "/.gitattributes",
+            "/.gitignore",
+            "/testbench.yaml"
+        ]
     }
 }
