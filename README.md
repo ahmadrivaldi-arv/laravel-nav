@@ -1,6 +1,6 @@
 # Laravel Navigation
 
-Core navigasi Laravel dengan fluent definitions, authorization, dan hasil tree immutable. Package `ahmdrv/laravel-nav` menggunakan namespace `Ahmdrv\Navigation`. Mendukung PHP 8.3+ dan Laravel 11; constraint Laravel sengaja dibatasi ke `^11.0` sampai versi lain diuji.
+Core navigasi Laravel dengan fluent definitions, authorization, dan hasil tree immutable. Package `ahmdrv/laravel-nav` menggunakan namespace `Ahmdrv\Navigation`. Mendukung PHP 8.3+ dan Laravel 10, 11, 12, serta 13. Constraint Illuminate adalah `^10.0 || ^11.0 || ^12.0 || ^13.0`; versi major berikutnya perlu diuji sebelum ditambahkan.
 
 Package hanya menghasilkan data. Rendering HTML, Blade, API response, orientasi menu, layout, escaping, dan sanitization ditangani aplikasi. Tidak ada views/components, assets, view composers, database menu, maupun dependency wajib Livewire, Filament, atau Spatie Permission.
 
@@ -244,9 +244,30 @@ composer test
 composer validate --strict
 ```
 
-Pint memakai preset PSR-12 dengan strict types. PHPStan/Larastan level 6 tanpa baseline. Test memakai PHPUnit 11 dan Orchestra Testbench 9, tanpa database bisnis. CI menjalankan test matrix, formatting, static analysis, Dependabot, dan pembaruan changelog.
+Pint memakai preset PSR-12 dengan strict types. PHPStan/Larastan level 6 tanpa baseline. Test memakai PHPUnit 10/11 dan Orchestra Testbench 8–11 sesuai versi Laravel, tanpa database bisnis. CI menjalankan test matrix, formatting, static analysis, Dependabot, dan pembaruan changelog.
 
-Verifikasi lokal menggunakan PHP 8.3.21, Laravel 11.57.0, Testbench 9.18.0, dan PHPUnit 11.5.57. Kombinasi `prefer-lowest` juga lulus pada Laravel 11.56.1, Testbench 9.18.0, PHPUnit 11.5.0, dan Package Tools 1.16.2. PHP 8.4/8.5 disiapkan pada CI tetapi belum diuji lokal; Laravel 12/13 tidak diklaim didukung.
+Matrix kompatibilitas:
+
+| Laravel | PHP yang diuji di CI | Testbench | PHPUnit |
+| --- | --- | --- | --- |
+| 10 | 8.3 | 8 | 10 |
+| 11 | 8.3, 8.4 | 9 | 11 |
+| 12 | 8.3, 8.4, 8.5 | 10 | 11 |
+| 13 | 8.3, 8.4, 8.5 | 11 | 11 |
+
+Setiap kombinasi dijalankan pada Linux dan Windows, dengan dependency `prefer-lowest` dan `prefer-stable`. PHP 8.1/8.2 tidak didukung package ini.
+
+Verifikasi lokal pada PHP 8.3.21 memakai kombinasi berikut; setiap versi menjalankan 51 tests (137 assertions) dan static analysis level 6:
+
+| Laravel | Testbench | PHPUnit |
+| --- | --- | --- |
+| 10.50.3 | 8.39.0 | 10.5.66 |
+| 11.57.0 | 9.18.0 | 11.5.57 |
+| 12.70.0 | 10.12.0 | 11.5.57 |
+| 13.38.0 | 11.3.0 | 11.5.57 |
+
+Laravel 10 dan 11 sudah melewati masa dukungan keamanan upstream. Kompatibilitas package tidak memperpanjang dukungan keamanan framework. Job CI Laravel 10/11 mengizinkan dependency dengan advisory untuk menjalankan test kompatibilitas dan tetap menampilkan hasil audit; pengecualian ini hanya berlaku di lingkungan CI, tidak disertakan dalam konfigurasi Composer package. Job Laravel 12/13 menggunakan kebijakan keamanan default Composer. Lihat [kebijakan dukungan Laravel](https://laravel.com/docs/13.x/releases#support-policy).
+
 
 ## Lisensi
 

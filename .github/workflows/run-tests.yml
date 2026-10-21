@@ -26,15 +26,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.3, 8.4, 8.5]
-        laravel: [11.*]
+        laravel: [10.*, 11.*, 12.*, 13.*]
         stability: [prefer-lowest, prefer-stable]
         include:
+          - laravel: 10.*
+            testbench: '^8.39'
+            phpunit: '^10.5'
           - laravel: 11.*
             testbench: '^9.18'
+            phpunit: '^11.5'
+          - laravel: 12.*
+            testbench: '^10.12'
+            phpunit: '^11.5'
+          - laravel: 13.*
+            testbench: '^11.3'
+            phpunit: '^11.5'
+        exclude:
+          - laravel: 10.*
+            php: 8.4
+          - laravel: 10.*
+            php: 8.5
+          - laravel: 11.*
+            php: 8.5
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -54,9 +71,15 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      # Only the isolated legacy compatibility jobs relax advisory blocking.
+      # The published composer.json retains Composer's default security policy.
+      - name: Allow legacy framework dependencies for compatibility testing
+        if: matrix.laravel == '10.*' || matrix.laravel == '11.*'
+        run: composer config policy.advisories.block false
+
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" --dev --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction
 
       - name: List Installed Dependencies
@@ -64,3 +87,8 @@ jobs:
 
       - name: Execute tests
         run: vendor/bin/phpunit
+
+      - name: Report legacy dependency advisories
+        if: matrix.laravel == '10.*' || matrix.laravel == '11.*'
+        continue-on-error: true
+        run: composer audit --format=summary

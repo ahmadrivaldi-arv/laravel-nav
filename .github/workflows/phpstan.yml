@@ -6,6 +6,7 @@ on:
     paths:
       - '**.php'
       - 'phpstan.neon.dist'
+      - 'composer.json'
       - '.github/workflows/phpstan.yml'
 
 jobs:
@@ -22,8 +23,10 @@ jobs:
           php-version: '8.3'
           coverage: none
 
-      - name: Install composer dependencies
-        uses: ramsey/composer-install@4.0.0
+      - name: Install current framework and analysis tooling
+        run: |
+          composer require "laravel/framework:^13.0" "orchestra/testbench:^11.3" --dev --no-interaction --no-update
+          composer update --prefer-dist --no-interaction
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan --error-format=github
